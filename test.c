@@ -61,25 +61,37 @@ int init_forks(void)
     return (0);
 }
 
+void    ft_print()
+{
+    mutex_lock
+    print
+    mutex_unlock
+}
+
 void *ft_philo(void *val)
 {
     // here what the philo doing
-    int n;
+    while(1)
+    {
+        int n;
 
-    n = (long) val + 1;
-    printf("%d %d has taken a fork \n", g_data.time_current, n);
-    pthread_mutex_lock(&g_data.forks[n]);
-    pthread_mutex_lock(&g_data.forks[(n + 1) % g_data.nb_of_philo]);
-    printf("%d %d is eating \n", g_data.time_current, n);
-    g_data.time_current += g_data.time_to_eat;
-    usleep(g_data.time_to_eat);
-    printf("%d %d is sleeping \n", g_data.time_current, n);
-    g_data.time_current += g_data.time_to_sleep;
-    usleep(g_data.time_to_sleep);
-    pthread_mutex_unlock(&g_data.forks[n]);
-    pthread_mutex_unlock(&g_data.forks[(n + 1) % g_data.nb_of_philo]);
-    printf("%d %d is thinking \n", g_data.time_current, n);
-    return (NULL);
+        n = (long) val + 1;
+        pthread_mutex_lock(&g_data.forks[n]);
+        printf("%d %d has taken left fork \n", g_data.time_current, n);
+        pthread_mutex_lock(&g_data.forks[(n + 1) % g_data.nb_of_philo]);
+        printf("%d %d has taken right fork \n", g_data.time_current, n);
+        printf("%d %d is eating \n", g_data.time_current, n);
+        g_data.time_current += g_data.time_to_eat;
+        usleep(g_data.time_to_eat);
+        pthread_mutex_unlock(&g_data.forks[n]);
+        pthread_mutex_unlock(&g_data.forks[(n + 1) % g_data.nb_of_philo]);
+        printf("%d %d is sleeping \n", g_data.time_current, n);
+        //g_data.time_current += g_data.time_to_sleep;
+        usleep(g_data.time_to_sleep);
+        printf("%d %d is thinking \n", g_data.time_current, n);
+        return (NULL);
+    }
+    
 }
 
 void create_pthread(void)
@@ -133,3 +145,8 @@ int main(int ac, char **av)
     else
         printf("Syntax: Error \n");
 }
+
+4 410 200 200 no one die 
+5 800 200 200
+4 310 200 100 one should die
+2 60 60 60
