@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <sys/time.h>
 /*
     Start.
     Philosopher i is thinking.
@@ -23,7 +24,9 @@ typedef struct s_data
     int nb_must_eat;
     int time_current;
     pthread_t *philo;
+    pthread_t philo_check;
     pthread_mutex_t *forks;
+    pthread_mutex_t print;
 }           t_data;
 
 t_data g_data;
@@ -61,37 +64,41 @@ int init_forks(void)
     return (0);
 }
 
-void    ft_print()
+void    ft_print(char *msg, int n, int time)
 {
-    mutex_lock
-    print
-    mutex_unlock
+    pthread_mutex_lock(&g_data.print);
+    printf("%d %d %s\n", time, n, msg);
+    pthread_mutex_unlock(&g_data.print);
+}
+
+long long time_current(void) {
+    struct timeval tv;
+
+    gettimeofday(&tv,NULL);
+    return (((long long)tv.tv_sec)*1000)+(tv.tv_usec/1000);
 }
 
 void *ft_philo(void *val)
 {
-    // here what the philo doing
     while(1)
     {
         int n;
 
         n = (long) val + 1;
         pthread_mutex_lock(&g_data.forks[n]);
-        printf("%d %d has taken left fork \n", g_data.time_current, n);
+        ft_print("has taken left fork", n, g_data.time_current);
         pthread_mutex_lock(&g_data.forks[(n + 1) % g_data.nb_of_philo]);
-        printf("%d %d has taken right fork \n", g_data.time_current, n);
-        printf("%d %d is eating \n", g_data.time_current, n);
+        ft_print("has taken right fork", n, g_data.time_current);
+        ft_print("is eating", n, g_data.time_current);
         g_data.time_current += g_data.time_to_eat;
-        usleep(g_data.time_to_eat);
+        usleep(g_data.time_to_eat * 1000);
         pthread_mutex_unlock(&g_data.forks[n]);
         pthread_mutex_unlock(&g_data.forks[(n + 1) % g_data.nb_of_philo]);
-        printf("%d %d is sleeping \n", g_data.time_current, n);
-        //g_data.time_current += g_data.time_to_sleep;
-        usleep(g_data.time_to_sleep);
-        printf("%d %d is thinking \n", g_data.time_current, n);
-        return (NULL);
+        ft_print("is sleeping", n, g_data.time_current);
+        usleep(g_data.time_to_sleep * 1000);
+        ft_print("is thinking", n, g_data.time_current);
     }
-    
+    return (NULL);
 }
 
 void create_pthread(void)
@@ -134,19 +141,26 @@ void ft_philosophers(void)
     else
         printf("error in initialisation\n");
 }
-
+void *ft_checker(void *val)
+{
+    while (1)
+    {
+        
+    }
+}
 int main(int ac, char **av)
 {
     if (ac == 5 || ac == 6)
     {
         stock_data(av, ac);
         ft_philosophers();
+        pthread_create(&g_data.philo_check, NULL, (void *)ft_checker, NULL);
     }
     else
         printf("Syntax: Error \n");
 }
 
-4 410 200 200 no one die 
-5 800 200 200
-4 310 200 100 one should die
-2 60 60 60
+// 4 410 200 200 no one die 
+// 5 800 200 200
+// 4 310 200 100 one should die
+// 2 60 60 60
