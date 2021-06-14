@@ -31,13 +31,20 @@ typedef struct s_data
 
 t_data g_data;
 
+long long time_current(void) {
+    struct timeval tv;
+
+    gettimeofday(&tv,NULL);
+    return (((long long)tv.tv_sec)*1000)+(tv.tv_usec/1000);
+}
+
 void stock_data(char **av, int ac)
 {
     g_data.nb_of_philo = atoi(av[1]);
     g_data.time_to_die = atoi(av[2]);
     g_data.time_to_eat = atoi(av[3]);
     g_data.time_to_sleep = atoi(av[4]);
-    g_data.time_current = 0;
+    g_data.time_current = time_current();
 
     if (ac == 6)
         g_data.nb_must_eat = atoi(av[5]);
@@ -71,12 +78,7 @@ void    ft_print(char *msg, int n, int time)
     pthread_mutex_unlock(&g_data.print);
 }
 
-long long time_current(void) {
-    struct timeval tv;
 
-    gettimeofday(&tv,NULL);
-    return (((long long)tv.tv_sec)*1000)+(tv.tv_usec/1000);
-}
 
 void *ft_philo(void *val)
 {
@@ -86,19 +88,19 @@ void *ft_philo(void *val)
 
         n = (long) val + 1;
         pthread_mutex_lock(&g_data.forks[n]);
-        ft_print("has taken left fork", n, g_data.time_current);
-        pthread_mutex_lock(&g_data.forks[(n + 1) % g_data.nb_of_philo]);
-        ft_print("has taken right fork", n, g_data.time_current);
-        ft_print("is eating", n, g_data.time_current);
-        g_data.time_current += g_data.time_to_eat;
-        usleep(g_data.time_to_eat * 1000);
+        ft_print("has taken left fork", n, time_current() - g_data.time_current);
+        pthread_mutex_lock(&g_data.forks[((n - 1) % g_data.nb_of_philo)]);
+        ft_print("has taken right fork", n,  time_current() - g_data.time_current);
+        ft_print("is eating", n, time_current() - g_data.time_current);
+        //g_data.time_current += g_data.time _to_eat;
+        usleep(g_data.time_to_eat  * 1000);
         pthread_mutex_unlock(&g_data.forks[n]);
-        pthread_mutex_unlock(&g_data.forks[(n + 1) % g_data.nb_of_philo]);
-        ft_print("is sleeping", n, g_data.time_current);
+        pthread_mutex_unlock(&g_data.forks[(n - 1) % g_data.nb_of_philo]);
+        ft_print("is sleeping", n, time_current() - g_data.time_current);
         usleep(g_data.time_to_sleep * 1000);
-        ft_print("is thinking", n, g_data.time_current);
+        ft_print("is thinking", n,  time_current() - g_data.time_current);
     }
-    return (NULL);
+    return (NULL); 
 }
 
 void create_pthread(void)
